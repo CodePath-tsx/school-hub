@@ -59,7 +59,7 @@ function LicencePage() {
                   {active.payload.expiresAt && <Info label="Expires" value={new Date(active.payload.expiresAt).toLocaleDateString()} />}
                   <Info label="Machine" value={active.payload.machineId || "(any)"} />
                 </div>
-                <button onClick={() => confirm("Deactivate this licence?") && db.clearLicense()} className="mt-6 h-10 px-4 rounded-md border border-destructive/40 text-destructive hover:bg-destructive/5">Deactivate</button>
+                <button onClick={() => { if (confirm("Deactivate this licence?")) { db.clearLicense(); db.logout(); nav({ to: "/license" }); } }} className="mt-6 h-10 px-4 rounded-md border border-destructive/40 text-destructive hover:bg-destructive/5">Deactivate</button>
               </div>
             ) : (
               <div className="text-center">
