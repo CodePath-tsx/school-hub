@@ -31,7 +31,8 @@ function b64urlToBytes(s: string): Uint8Array {
   const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
   const b64 = s.replace(/-/g, "+").replace(/_/g, "/") + pad;
   const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
+  const buf = new ArrayBuffer(bin.length);
+  const bytes = new Uint8Array(buf);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return bytes;
 }
