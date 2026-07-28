@@ -10,12 +10,12 @@ export function PageHeader({
   right?: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 mb-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-6">
+      <div className="min-w-0">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">{title}</h1>
         {subtitle && <div className="text-sm text-muted-foreground mt-1">{subtitle}</div>}
       </div>
-      {right && <div className="flex items-center gap-3">{right}</div>}
+      {right && <div className="flex items-center gap-2 sm:gap-3 flex-wrap">{right}</div>}
     </div>
   );
 }
