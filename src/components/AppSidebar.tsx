@@ -17,7 +17,10 @@ import { db } from "@/lib/store";
 import { useDb } from "@/lib/useDb";
 import { initials } from "@/lib/store";
 
-const sections = [
+const sections: {
+  label: string;
+  items: { title: string; to: string; icon: typeof LayoutDashboard; exact?: boolean }[];
+}[] = [
   {
     label: "Main",
     items: [
@@ -46,7 +49,7 @@ const sections = [
     label: "System",
     items: [{ title: "Licence", to: "/app/licence", icon: KeyRound }],
   },
-] as const;
+];
 
 export function AppSidebar() {
   const path = useRouterState({ select: (s) => s.location.pathname });
