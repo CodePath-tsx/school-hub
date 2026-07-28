@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LicenseRouteImport } from './routes/license'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
@@ -23,9 +25,19 @@ import { Route as AppGroupsRouteImport } from './routes/app.groups'
 import { Route as AppClassroomsRouteImport } from './routes/app.classrooms'
 import { Route as AppAttendanceRouteImport } from './routes/app.attendance'
 
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LicenseRoute = LicenseRouteImport.update({
+  id: '/license',
+  path: '/license',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -92,7 +104,9 @@ const AppAttendanceRoute = AppAttendanceRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/license': typeof LicenseRoute
   '/login': typeof LoginRoute
+  '/setup': typeof SetupRoute
   '/app/attendance': typeof AppAttendanceRoute
   '/app/classrooms': typeof AppClassroomsRoute
   '/app/groups': typeof AppGroupsRoute
@@ -106,7 +120,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/license': typeof LicenseRoute
   '/login': typeof LoginRoute
+  '/setup': typeof SetupRoute
   '/app/attendance': typeof AppAttendanceRoute
   '/app/classrooms': typeof AppClassroomsRoute
   '/app/groups': typeof AppGroupsRoute
@@ -122,7 +138,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/license': typeof LicenseRoute
   '/login': typeof LoginRoute
+  '/setup': typeof SetupRoute
   '/app/attendance': typeof AppAttendanceRoute
   '/app/classrooms': typeof AppClassroomsRoute
   '/app/groups': typeof AppGroupsRoute
@@ -139,7 +157,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/license'
     | '/login'
+    | '/setup'
     | '/app/attendance'
     | '/app/classrooms'
     | '/app/groups'
@@ -153,7 +173,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/license'
     | '/login'
+    | '/setup'
     | '/app/attendance'
     | '/app/classrooms'
     | '/app/groups'
@@ -168,7 +190,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/license'
     | '/login'
+    | '/setup'
     | '/app/attendance'
     | '/app/classrooms'
     | '/app/groups'
@@ -184,16 +208,32 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  LicenseRoute: typeof LicenseRoute
   LoginRoute: typeof LoginRoute
+  SetupRoute: typeof SetupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/license': {
+      id: '/license'
+      path: '/license'
+      fullPath: '/license'
+      preLoaderRoute: typeof LicenseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app': {
@@ -314,7 +354,9 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  LicenseRoute: LicenseRoute,
   LoginRoute: LoginRoute,
+  SetupRoute: SetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
