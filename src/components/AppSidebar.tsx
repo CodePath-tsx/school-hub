@@ -51,15 +51,14 @@ const sections: {
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const state = useDb();
   const user = state.session ? state.users.find((u) => u.id === state.session!.userId) : null;
 
   return (
-    <aside className="w-64 shrink-0 min-h-screen bg-sidebar text-sidebar-foreground flex flex-col">
-      {/* Logo */}
+    <aside className="w-64 shrink-0 h-full min-h-screen bg-sidebar text-sidebar-foreground flex flex-col">
       <div className="p-5 flex items-center gap-3">
         <div className="w-11 h-11 rounded-xl bg-sidebar-foreground/95 flex items-center justify-center">
           <BookMarked className="w-6 h-6 text-sidebar" />
@@ -84,6 +83,7 @@ export function AppSidebar() {
                   <li key={it.to}>
                     <Link
                       to={it.to}
+                      onClick={onNavigate}
                       className={`flex items-center gap-3 px-3 h-10 rounded-lg text-sm transition-colors ${
                         active
                           ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-foreground"
@@ -101,7 +101,6 @@ export function AppSidebar() {
         ))}
       </nav>
 
-      {/* User footer */}
       {user && (
         <div className="border-t border-sidebar-border p-3 flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-sidebar-foreground/15 flex items-center justify-center text-sidebar-foreground font-semibold">

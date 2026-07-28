@@ -9,9 +9,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   const nav = useNavigate();
   useEffect(() => {
-    const user = db.currentUser();
-    if (!user) nav({ to: "/login", replace: true });
-    else if (!db.license()) nav({ to: "/app/licence", replace: true });
+    if (!db.setupComplete()) nav({ to: "/setup", replace: true });
+    else if (!db.license()) nav({ to: "/license", replace: true });
+    else if (!db.currentUser()) nav({ to: "/login", replace: true });
     else nav({ to: "/app", replace: true });
   }, [nav]);
   return (
