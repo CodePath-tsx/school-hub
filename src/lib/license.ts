@@ -60,8 +60,14 @@ export async function verifyLicense(key: string, machineId: string): Promise<Ver
     } catch {
       return { ok: false, error: "This browser does not support Ed25519 verification." };
     }
-    const okSig = await crypto.subtle.verify("Ed25519", pubKey, sigBytes, payloadBytes);
+    const okSig = await crypto.subtle.verify(
+      "Ed25519",
+      pubKey,
+      sigBytes.buffer as ArrayBuffer,
+      payloadBytes.buffer as ArrayBuffer,
+    );
     if (!okSig) return { ok: false, error: "Signature is invalid." };
+
 
     const payload = JSON.parse(new TextDecoder().decode(payloadBytes)) as LicensePayload;
 
