@@ -241,7 +241,9 @@ function GroupModal({ group, onClose }: { group?: Group; onClose: () => void }) 
           <Field label="Subject *"><input value={subject} onChange={(e) => setSubject(e.target.value)} required className="w-full h-10 px-3 border rounded-md bg-background" /></Field>
           <Field label="Academic Year">
             <select value={year} onChange={(e) => setYear(e.target.value as any)} className="w-full h-10 px-3 border rounded-md bg-background">
-              {Object.entries(yearLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.entries(yearLabels).map(([k, v]) => (
+  <option key={k} value={k}>{v}</option>
+))}
             </select>
           </Field>
           <Field label="Teacher *">
