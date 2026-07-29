@@ -3,7 +3,8 @@ import { useMemo, useState } from "react";
 import { Check, X, Clock, CheckCircle2, XCircle, Save, Printer, HelpCircle } from "lucide-react";
 import { useDb } from "@/lib/useDb";
 import { Card, PageHeader, ProgressBar } from "@/components/ui-kit";
-import { db, initials } from "@/lib/store";
+import { db, initials, DAY_LABELS, fmtDate } from "@/lib/store";
+import { printHtml, brandHeader, esc } from "@/lib/print";
 
 export const Route = createFileRoute("/app/attendance")({
   head: () => ({ meta: [{ title: "Attendance — SchoolByte ERP" }] }),
@@ -73,7 +74,7 @@ function AttendancePage() {
                     <span className={`w-1.5 h-1.5 rounded-full ${dirty ? "bg-warning" : "bg-success"}`} />
                     {dirty ? "Not saved" : "Saved"}
                   </span>
-                  <button onClick={() => window.print()} className="h-9 px-3 rounded-md border inline-flex items-center gap-2"><Printer className="w-4 h-4" /> Print</button>
+                  <button onClick={() => printAttendanceSheet(groupId, date)} className="h-9 px-3 rounded-md border inline-flex items-center gap-2"><Printer className="w-4 h-4" /> Print</button>
                 </div>
               </div>
             </div>
