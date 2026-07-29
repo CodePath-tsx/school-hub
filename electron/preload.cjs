@@ -1,9 +1,11 @@
-// Preload script — currently a no-op because all data lives in the renderer
-// (localStorage). If you want to swap the renderer store for a real
-// better-sqlite3 database in Electron main, expose IPC handlers here via
-// contextBridge and mirror the API defined in src/lib/store.ts.
-const { contextBridge } = require("electron");
-contextBridge.exposeInMainWorld("schoolbyte", {
-  platform: process.platform,
-  version: "1.0.0",
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  db: {
+    getAll: (table) => ipcRenderer.invoke('db/getAll', table),
+    insert: (table, row) => ipcRenderer.invoke('db/insert', table, row),
+    update: (table, id, row) => ipcRenderer.invoke('db/update', table, id, row),
+    delete: (table, id) => ipcRenderer.invoke('db/delete', table, id),
+    query: (sql, params) => ipcRenderer.invoke('db/query', sql, params)
+  }
 });
