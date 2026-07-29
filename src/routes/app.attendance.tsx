@@ -223,3 +223,30 @@ function StatBox({ label, value, pct, tone, icon, noBar }: { label: string; valu
     </Card>
   );
 }
+
+function printAttendanceSheet(groupId: string, date: string) {
+  const s = db.all();
+  const g = s.groups.find((x) => x.id === groupId);
+  if (!g) return;
+  const teacher = s.teachers.find((t) => t.id === g.teacherId);
+  const room = s.rooms.find((r) => r.id === g.roomId);
+  const students = s.students.filter((st) => st.groupIds.includes(groupId));
+  const stateFor = (sid: string) => s.attendance.find((a) => a.groupId === groupId && a.studentId === sid && a.date === date)?.state ?? "";
+  const rows = students.map((st, i) => {
+    const cur = stateFor(st.id);
+    const cell = (v: string) => `<td style="text-align:center;font-weight:${cur === v ? 700 : 400};color:${cur === v ? "#2f5a3f" : "#bbb"}">${cur === v ? "\u25CF" : "\u25CB"}</td>`;
+    return `<tr><td>${i + 1}</td><td>${esc(st.firstName)} ${esc(st.lastName)}</td>${cell("present")}${cell("late")}${cell("absent")}<td></td></tr>`;
+  }).join("");
+  const body = `${brandHeader(s.settings.schoolName, "Attendance Sheet", s.settings.taxId, s.settings.schoolPhone, s.settings.address)}
+    <h1>${esc(g.name)} — ${esc(g.subject)}</h1>
+    <div class="kv">
+      <div><b>Date</b><span>${esc(fmtDate(date))}</span></div>
+      <div><b>Schedule</b><span>${esc(DAY_LABELS[g.scheduleDay])} ${esc(g.scheduleTime)}</span></div>
+      <div><b>Teacher</b><span>${teacher ? esc(`${teacher.firstName} ${teacher.lastName}`) : "—"}</span></div>
+      <div><b>Room</b><span>${esc(room?.name ?? "—")}</span></div>
+    </div>
+    <table style="margin-top:12px"><thead><tr><th>#</th><th>Student</th><th style="text-align:center">Present</th><th style="text-align:center">Late</th><th style="text-align:center">Absent</th><th>Signature</th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="6" style="text-align:center;color:#888">No students enrolled.</td></tr>`}</tbody></table>
+    <div class="sig"><div><div class="line">Teacher Signature</div></div><div><div class="line">Administration</div></div></div>`;
+  printHtml(`Attendance — ${g.name} ${date}`, body);
+}
