@@ -104,7 +104,7 @@ function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
                 <XAxis dataKey="m" stroke="var(--color-muted-foreground)" fontSize={12} />
                 <YAxis stroke="var(--color-muted-foreground)" fontSize={12} tickFormatter={(v) => v >= 1000 ? `${v / 1000}k` : v} />
-                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--color-border)" }} formatter={(v: number) => fmtMoney(v, state.settings.currency)} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: "1px solid var(--color-border)" }} formatter={(v: any) => fmtMoney(Number(v), state.settings.currency)} />
                 <Legend iconType="circle" />
                 <Bar dataKey="Revenue" fill="var(--color-primary)" radius={[6, 6, 0, 0]} />
                 <Bar dataKey="Expenses" fill="var(--color-success)" fillOpacity={0.4} radius={[6, 6, 0, 0]} />
