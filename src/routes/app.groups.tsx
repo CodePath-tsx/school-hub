@@ -12,18 +12,35 @@ export const Route = createFileRoute("/app/groups")({
 });
 
 const yearLabels: Record<string, string> = {
+  // Primary School
+
+  "1st-year-primary": "1st Year Primary",
+
+  "2nd-year-primary": "2nd Year Primary",
+
+  "3rd-year-primary": "3rd Year Primary",
+
+  "4th-year-primary": "4th Year Primary",
+
+  "5th-year-primary": "5th Year Primary",
+
+  // Middle School
+
+  "1st-year-middle": "1st Year Middle",
+
+  "2nd-year-middle": "2nd Year Middle",
+
+  "3rd-year-middle": "3rd Year Middle",
+
+  "4th-year-middle": "4th Year Middle",
+
+  // Secondary School
+
   "1st-year-secondary": "1st Year Secondary",
+
   "2nd-year-secondary": "2nd Year Secondary",
+
   "3rd-year-secondary": "3rd Year Secondary",
-  "1st-year-primary": "1st Year primary",
-  "2st-year-primary": "2st Year primary",
-  "3st-year-primary": "3st Year primary",
-  "4st-year-primary": "4st Year primary",
-  "5st-year-primary": "5st Year primary",
-  "1st-year-middle": "1st Year middle"
-  "2st-year-middle": "2st Year middle"
-  "3st-year-middle": "3st Year middle"
-  "4st-year-middle": "4st Year middle"
   
   
 };
