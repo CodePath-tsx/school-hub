@@ -17,7 +17,7 @@ function AttendancePage() {
   const [dirty, setDirty] = useState(false);
   const [tab, setTab] = useState<"students" | "groups" | "absences" | "monthly">("students");
 
-  const studentsInGroup = useMemo(() => state.students.filter((s) => s.groupId === groupId), [state.students, groupId]);
+  const studentsInGroup = useMemo(() => state.students.filter((s) => s.groupIds.includes(groupId)), [state.students, groupId]);
   const entryFor = (sid: string) => state.attendance.find((a) => a.groupId === groupId && a.studentId === sid && a.date === date);
 
   const counts = useMemo(() => {
@@ -150,7 +150,7 @@ function AttendancePage() {
                   <div key={s.id} className="grid grid-cols-[1fr_60px_1fr_60px_60px] gap-2 items-center text-sm py-1">
                     <div className="min-w-0">
                       <div className="font-semibold truncate">{s.firstName} {s.lastName}</div>
-                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{groupsById[s.groupId]?.name}</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{s.groupIds.map((id) => groupsById[id]?.name).filter(Boolean).join(", ")}</div>
                     </div>
                     <div className="font-semibold">{r.sessions}</div>
                     <div className="flex items-center gap-2">

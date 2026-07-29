@@ -22,7 +22,7 @@ function StatisticsPage() {
   const state = useDb();
   const totalRev = state.students.filter((s) => s.status === "active").reduce((a, s) => a + s.monthlyFee, 0);
   const bySubject = state.groups.reduce<Record<string, number>>((acc, g) => {
-    const c = state.students.filter((s) => s.groupId === g.id).length;
+    const c = state.students.filter((s) => s.groupIds.includes(g.id)).length;
     acc[g.subject] = (acc[g.subject] || 0) + c;
     return acc;
   }, {});
