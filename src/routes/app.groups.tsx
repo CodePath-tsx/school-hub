@@ -15,6 +15,17 @@ const yearLabels: Record<string, string> = {
   "1st-year-secondary": "1st Year Secondary",
   "2nd-year-secondary": "2nd Year Secondary",
   "3rd-year-secondary": "3rd Year Secondary",
+  "1st-year-primary": "1st Year primary",
+  "2st-year-primary": "2st Year primary",
+  "3st-year-primary": "3st Year primary",
+  "4st-year-primary": "4st Year primary",
+  "5st-year-primary": "5st Year primary",
+  "1st-year-middle": "1st Year middle"
+  "2st-year-middle": "2st Year middle"
+  "3st-year-middle": "3st Year middle"
+  "4st-year-middle": "4st Year middle"
+  
+  
 };
 
 function GroupsPage() {
