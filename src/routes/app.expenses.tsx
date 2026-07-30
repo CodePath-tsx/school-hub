@@ -107,7 +107,7 @@ function ExpensesPage() {
   return (
     <>
       <PageHeader
-        title="Expenses & Payroll"
+        title="Expenses"
         subtitle={
           <>
             <b>{monthExpenses.length}</b> entries in {ym} · Total <b>{fmtMoney(total, currency)}</b>
