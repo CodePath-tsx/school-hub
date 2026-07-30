@@ -22,6 +22,7 @@ import { Route as AppStatisticsRouteImport } from './routes/app.statistics'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppLicenceRouteImport } from './routes/app.licence'
 import { Route as AppGroupsRouteImport } from './routes/app.groups'
+import { Route as AppExpensesRouteImport } from './routes/app.expenses'
 import { Route as AppClassroomsRouteImport } from './routes/app.classrooms'
 import { Route as AppAttendanceRouteImport } from './routes/app.attendance'
 
@@ -90,6 +91,11 @@ const AppGroupsRoute = AppGroupsRouteImport.update({
   path: '/groups',
   getParentRoute: () => AppRoute,
 } as any)
+const AppExpensesRoute = AppExpensesRouteImport.update({
+  id: '/expenses',
+  path: '/expenses',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppClassroomsRoute = AppClassroomsRouteImport.update({
   id: '/classrooms',
   path: '/classrooms',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/setup': typeof SetupRoute
   '/app/attendance': typeof AppAttendanceRoute
   '/app/classrooms': typeof AppClassroomsRoute
+  '/app/expenses': typeof AppExpensesRoute
   '/app/groups': typeof AppGroupsRoute
   '/app/licence': typeof AppLicenceRoute
   '/app/settings': typeof AppSettingsRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/setup': typeof SetupRoute
   '/app/attendance': typeof AppAttendanceRoute
   '/app/classrooms': typeof AppClassroomsRoute
+  '/app/expenses': typeof AppExpensesRoute
   '/app/groups': typeof AppGroupsRoute
   '/app/licence': typeof AppLicenceRoute
   '/app/settings': typeof AppSettingsRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/setup': typeof SetupRoute
   '/app/attendance': typeof AppAttendanceRoute
   '/app/classrooms': typeof AppClassroomsRoute
+  '/app/expenses': typeof AppExpensesRoute
   '/app/groups': typeof AppGroupsRoute
   '/app/licence': typeof AppLicenceRoute
   '/app/settings': typeof AppSettingsRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/app/attendance'
     | '/app/classrooms'
+    | '/app/expenses'
     | '/app/groups'
     | '/app/licence'
     | '/app/settings'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/app/attendance'
     | '/app/classrooms'
+    | '/app/expenses'
     | '/app/groups'
     | '/app/licence'
     | '/app/settings'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/setup'
     | '/app/attendance'
     | '/app/classrooms'
+    | '/app/expenses'
     | '/app/groups'
     | '/app/licence'
     | '/app/settings'
@@ -306,6 +318,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppGroupsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/expenses': {
+      id: '/app/expenses'
+      path: '/expenses'
+      fullPath: '/app/expenses'
+      preLoaderRoute: typeof AppExpensesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/classrooms': {
       id: '/app/classrooms'
       path: '/classrooms'
@@ -326,6 +345,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAttendanceRoute: typeof AppAttendanceRoute
   AppClassroomsRoute: typeof AppClassroomsRoute
+  AppExpensesRoute: typeof AppExpensesRoute
   AppGroupsRoute: typeof AppGroupsRoute
   AppLicenceRoute: typeof AppLicenceRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -339,6 +359,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAttendanceRoute: AppAttendanceRoute,
   AppClassroomsRoute: AppClassroomsRoute,
+  AppExpensesRoute: AppExpensesRoute,
   AppGroupsRoute: AppGroupsRoute,
   AppLicenceRoute: AppLicenceRoute,
   AppSettingsRoute: AppSettingsRoute,

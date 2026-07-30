@@ -40,6 +40,7 @@ const sections: {
   {
     label: "Management",
     items: [
+      { title: "Expenses", to: "/app/expenses", icon: Wallet },
       { title: "Statistics", to: "/app/statistics", icon: BarChart3 },
       { title: "Users & Roles", to: "/app/users", icon: Shield },
       { title: "Settings", to: "/app/settings", icon: SettingsIcon },
