@@ -1,100 +1,155 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/store";
-import { verifyLicense, getMachineId } from "@/lib/license";
-import { Key, Copy, CheckCircle2, Loader2, AlertTriangle, ShieldCheck, Cpu } from "lucide-react";
+import { toast } from "sonner";
+import { KeyRound, ShieldCheck, Cpu, Copy, Check, Loader2, LogOut } from "lucide-react";
+import { useMBStore } from "@/lib/mb-store";
+import { getMachineId } from "@/lib/seed";
+import { verifyLicense, type LicensePayload } from "@/core/license";
+import { useAuthStore, logout } from "@/lib/auth";
 
-export const Route = createFileRoute("/license")({
-  head: () => ({ meta: [{ title: "Activate Licence — SchoolByte ERP" }] }),
-  component: LicensePublic,
+export const Route = createFileRoute("/activate")({
+  beforeLoad: () => {
+    if (typeof window === "undefined") return;
+    if (!useMBStore.getState().setupCompleted) {
+      throw redirect({ to: "/setup" });
+    }
+  },
+  component: ActivatePage,
 });
 
-function LicensePublic() {
-  const nav = useNavigate();
-  const machineId = getMachineId();
-  const [input, setInput] = useState("");
-  const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+function ActivatePage() {
+  const navigate = useNavigate();
+  const [key, setKey] = useState("");
   const [copied, setCopied] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [machineId, setMachineId] = useState("...");
+  const existing = useMBStore((s) => s.license);
+  const setLicense = useMBStore((s) => s.setLicense);
+  const session = useAuthStore((s) => s.session);
 
-  // Redirect if no setup yet or already licensed
-  useEffect(() => {
-    if (!db.setupComplete()) nav({ to: "/setup", replace: true });
-    else if (db.license()) nav({ to: "/login", replace: true });
-  }, [nav]);
+  useEffect(() => { setMachineId(getMachineId()); }, []);
 
-  async function activate() {
-    setErr(null); setBusy(true);
-    const res = await verifyLicense(input.trim(), machineId);
-    if (!res.ok || !res.payload) { setErr(res.error ?? "Invalid license."); setBusy(false); return; }
-    db.setLicense({ key: input.trim(), payload: res.payload, machineId, activatedAt: new Date().toISOString() });
-    setBusy(false);
-    nav({ to: "/login", replace: true });
-  }
-  async function copy() {
-    await navigator.clipboard.writeText(machineId);
-    setCopied(true); setTimeout(() => setCopied(false), 1500);
-  }
+  const activate = async () => {
+    const trimmed = key.trim();
+    if (!trimmed) return toast.error("أدخل مفتاح الترخيص");
+    if (!trimmed.startsWith("MB1.")) {
+      return toast.error("تنسيق غير صالح. المفاتيح تبدأ بـ MB1.");
+    }
+    setVerifying(true);
+    try {
+      const payload: LicensePayload = await verifyLicense(trimmed, machineId);
+      setLicense({
+        key: trimmed,
+        type: payload.type,
+        machineId: payload.machineId,
+        activatedAt: new Date().toISOString(),
+        expiresAt: payload.expiresAt,
+        ownerName: payload.customer,
+      });
+      toast.success(`تم التفعيل بنجاح — ${payload.customer}`);
+      navigate({ to: "/login" });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const copy = () => {
+    navigator.clipboard.writeText(machineId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  const isValid = !!existing && (!existing.expiresAt || new Date(existing.expiresAt).getTime() > Date.now());
 
   return (
-    <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
-      <div className="max-w-xl mx-auto">
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center">
-            <ShieldCheck className="w-7 h-7" />
+    <div className="min-h-screen grid place-items-center bg-background p-6" dir="rtl">
+      <div className="w-full max-w-lg rounded-3xl border bg-card p-8 shadow-elevated">
+        <div className="flex items-center gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
+            <KeyRound className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight">ترخيص التطبيق</h1>
+            <p className="text-sm text-muted-foreground">أدخل مفتاح Ed25519 موقّع من الشركة</p>
           </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-center">Application Licence</h1>
-        <p className="text-sm text-muted-foreground text-center mt-1.5 max-w-md mx-auto">
-          Enter your signed Ed25519 licence key issued by the vendor to unlock the application on this machine.
-        </p>
 
-        <div className="mt-8 bg-card border rounded-2xl p-5 sm:p-7 shadow-sm">
-          <div className="rounded-xl bg-muted/60 border p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Cpu className="w-4 h-4 text-primary" />
-              <div className="text-xs uppercase tracking-widest font-semibold text-muted-foreground">Machine ID (HWID)</div>
+        {isValid && existing && (
+          <div className="mt-4 rounded-2xl border border-success/40 bg-success/5 p-4">
+            <div className="flex items-center gap-2 text-success">
+              <ShieldCheck className="h-4 w-4" />
+              <span className="text-sm font-bold">مُفعّل</span>
             </div>
-            <div className="flex items-center gap-2">
-              <code className="flex-1 font-mono text-base sm:text-lg font-bold select-all break-all">{machineId}</code>
-              <button onClick={copy} className="shrink-0 h-9 w-9 rounded-md border hover:bg-muted flex items-center justify-center" title="Copy">
-                {copied ? <CheckCircle2 className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
-              </button>
+            <div className="mt-2 space-y-1 text-xs">
+              <div><span className="text-muted-foreground">المالك:</span> <span className="font-medium">{existing.ownerName}</span></div>
+              <div><span className="text-muted-foreground">النوع:</span> <span className="font-medium">{existing.type}</span></div>
+              {existing.expiresAt && (
+                <div><span className="text-muted-foreground">ينتهي:</span> <span className="font-medium">{new Date(existing.expiresAt).toLocaleDateString("ar")}</span></div>
+              )}
             </div>
-            <div className="text-xs text-muted-foreground mt-2">Share this ID with the vendor so they can issue a licence bound to your device.</div>
           </div>
+        )}
 
-          <div className="mt-6">
-            <div className="text-sm font-medium mb-2">Licence key</div>
+        <div className="mt-6 rounded-2xl border bg-muted/40 p-4">
+          <div className="flex items-start gap-3">
+            <Cpu className="h-4 w-4 mt-0.5 text-muted-foreground" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">Machine ID (HWID)</p>
+              <p className="mt-1 font-mono text-sm break-all">{machineId}</p>
+            </div>
+            <button onClick={copy} className="grid h-8 w-8 place-items-center rounded-lg border hover:bg-background" aria-label="نسخ">
+              {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+            </button>
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            شارك هذا المعرّف مع مسؤول المبيعات لإصدار مفتاح Ed25519 مربوط بجهازك.
+          </p>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <div>
+            <label className="text-sm font-medium">مفتاح الترخيص</label>
             <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="MB1.eyJj............XYZ.SIGNATURE_BASE64URL"
-              rows={3}
-              className="w-full px-3 py-2.5 rounded-lg border bg-background font-mono text-xs sm:text-sm outline-none focus:ring-2 focus:ring-ring/40 focus:border-primary resize-none"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+              placeholder="MB1.eyJj...........XYZ.SIGNATURE_BASE64URL"
+              rows={4}
+              className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-xs font-mono outline-none focus:ring-2 focus:ring-ring"
+              spellCheck={false}
             />
-            <div className="text-xs text-muted-foreground mt-1.5">Starts with <code>MB1.</code> and carries an Ed25519 signature. Unsigned keys are rejected.</div>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              يبدأ بـ <code className="font-mono">MB1.</code> ويحتوي على توقيع Ed25519. أي مفتاح غير موقّع سيُرفض.
+            </p>
           </div>
-
-          {err && (
-            <div className="mt-4 text-sm text-destructive inline-flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4" /> {err}
-            </div>
-          )}
-
-          <button
-            onClick={activate}
-            disabled={busy || !input.trim()}
-            className="mt-6 w-full h-12 rounded-lg bg-primary text-primary-foreground font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
-            Verify & Activate
-          </button>
         </div>
 
-        <p className="text-xs text-center text-muted-foreground mt-6">
-          No access to the app is granted until a valid licence key is verified.
-        </p>
+        <button
+          onClick={activate}
+          disabled={verifying}
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground shadow-primary transition hover:bg-primary-hover disabled:opacity-60"
+        >
+          {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : <><ShieldCheck className="h-4 w-4" /> تحقق وتفعيل</>}
+        </button>
+
+        {isValid && (
+          <button
+            onClick={() => navigate({ to: session ? "/dashboard" : "/login" })}
+            className="mt-3 w-full rounded-xl border py-2.5 text-sm font-semibold hover:bg-accent"
+          >
+            متابعة إلى {session ? "لوحة التحكم" : "تسجيل الدخول"}
+          </button>
+        )}
+
+        {session && (
+          <button
+            onClick={() => { logout(); navigate({ to: "/login" }); }}
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border py-2 text-xs text-muted-foreground hover:bg-accent"
+          >
+            <LogOut className="h-3 w-3" /> تسجيل خروج
+          </button>
+        )}
       </div>
     </div>
   );
