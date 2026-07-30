@@ -92,6 +92,14 @@ export async function verifyLicense(key: string, machineId: string): Promise<Ver
 export function getMachineId(): string {
   const KEY = "schoolbyte.hwid";
   try {
+    // Electron: derive a stable HWID from the real machine (hostname + cpu + arch).
+    const bridge = (window as any).schoolbyte;
+    if (bridge?.machineId) {
+      const hw = bridge.machineId();
+      if (hw) return hw;
+    }
+  } catch { /* ignore */ }
+  try {
     let id = localStorage.getItem(KEY);
     if (!id) {
       const rand = new Uint8Array(8);

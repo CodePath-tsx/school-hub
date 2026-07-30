@@ -11,7 +11,7 @@ import {
   Settings as SettingsIcon,
   KeyRound,
   Power,
-  BookMarked,
+  Wallet,
 } from "lucide-react";
 import { db } from "@/lib/store";
 import { useDb } from "@/lib/useDb";
@@ -40,6 +40,7 @@ const sections: {
   {
     label: "Management",
     items: [
+      { title: "Expenses", to: "/app/expenses", icon: Wallet },
       { title: "Statistics", to: "/app/statistics", icon: BarChart3 },
       { title: "Users & Roles", to: "/app/users", icon: Shield },
       { title: "Settings", to: "/app/settings", icon: SettingsIcon },
@@ -60,8 +61,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <aside className="w-64 shrink-0 h-full min-h-screen bg-sidebar text-sidebar-foreground flex flex-col">
       <div className="p-5 flex items-center gap-3">
-        <div className="w-11 h-11 rounded-xl bg-sidebar-foreground/95 flex items-center justify-center">
-          <BookMarked className="w-6 h-6 text-sidebar" />
+        <div className="w-11 h-11 rounded-xl bg-sidebar-foreground/95 overflow-hidden flex items-center justify-center">
+          <img src="/app-icon.png" alt="SchoolByte ERP logo" width={44} height={44} className="w-full h-full object-cover" />
         </div>
         <div className="leading-tight">
           <div className="font-bold text-lg">SchoolByte</div>
