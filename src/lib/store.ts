@@ -183,6 +183,15 @@ function migrate(raw: any): DB {
 function load(): DB {
   if (cache) return cache;
   try {
+    // Electron: read the snapshot out of the better-sqlite3 database first.
+    const bridge = typeof window !== "undefined" ? (window as any).schoolbyte : null;
+    const fromSqlite = bridge?.dbRead ? bridge.dbRead() : null;
+    if (fromSqlite) {
+      cache = migrate(JSON.parse(fromSqlite));
+      return cache!;
+    }
+  } catch { /* ignore */ }
+  try {
     const raw = typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (raw) {
       cache = migrate(JSON.parse(raw));
@@ -196,11 +205,17 @@ function load(): DB {
 
 function save() {
   if (!cache) return;
+  const json = JSON.stringify(cache);
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
-    for (const l of listeners) l();
+    const bridge = typeof window !== "undefined" ? (window as any).schoolbyte : null;
+    bridge?.dbWrite?.(json);
   } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEY, json);
+  } catch { /* ignore */ }
+  for (const l of listeners) l();
 }
+
 
 const listeners = new Set<() => void>();
 export function subscribe(fn: () => void) {
