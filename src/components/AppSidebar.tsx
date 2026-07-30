@@ -11,6 +11,7 @@ import {
   Settings as SettingsIcon,
   KeyRound,
   Power,
+  Wallet,
   BookMarked,
 } from "lucide-react";
 import { db } from "@/lib/store";
