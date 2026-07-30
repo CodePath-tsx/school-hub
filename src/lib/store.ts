@@ -386,6 +386,48 @@ export const db = {
 
   updateSettings(patch: Partial<Settings>) { const s = load(); s.settings = { ...s.settings, ...patch }; save(); },
 
+  // Expenses (salaries, purchases, running costs)
+  addExpense(p: Omit<Expense, "id">) { const s = load(); const e: Expense = { ...p, id: uid() }; s.expenses.push(e); save(); return e; },
+  updateExpense(id: ID, patch: Partial<Expense>) { const s = load(); const i = s.expenses.findIndex(x => x.id === id); if (i >= 0) { s.expenses[i] = { ...s.expenses[i], ...patch }; save(); } },
+  deleteExpense(id: ID) { const s = load(); s.expenses = s.expenses.filter(x => x.id !== id); save(); },
+  expensesInMonth(ym: string): Expense[] { return load().expenses.filter((e) => e.at.startsWith(ym)); },
+  expensesThisMonth(): number {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    return this.expensesInMonth(ym).reduce((a, e) => a + e.amount, 0);
+  },
+  expensesByCategory(ym?: string): { category: string; total: number }[] {
+    const s = load();
+    const list = ym ? s.expenses.filter((e) => e.at.startsWith(ym)) : s.expenses;
+    const map = new Map<string, number>();
+    for (const e of list) map.set(e.category, (map.get(e.category) ?? 0) + e.amount);
+    return [...map.entries()].map(([category, total]) => ({ category, total })).sort((a, b) => b.total - a.total);
+  },
+  /** Suggested payroll for each teacher for a given month (YYYY-MM). */
+  teacherPayroll(ym: string): {
+    teacherId: ID; name: string; mode: Teacher["salaryMode"]; rate: number;
+    sessions: number; collected: number; due: number; paid: number;
+  }[] {
+    const s = load();
+    return s.teachers.filter((t) => t.status === "active").map((t) => {
+      const groups = s.groups.filter((g) => g.teacherId === t.id && g.status === "active");
+      const groupIds = groups.map((g) => g.id);
+      const sessions = groups.reduce((a, g) => a + g.sessionsPerMonth, 0);
+      const studentIds = s.students.filter((st) => st.groupIds.some((gid) => groupIds.includes(gid))).map((st) => st.id);
+      const collected = s.payments
+        .filter((p) => p.paidAt.startsWith(ym) && studentIds.includes(p.studentId))
+        .reduce((a, p) => a + p.amount, 0);
+      const due = t.salaryMode === "session"
+        ? sessions * t.salaryRate
+        : Math.round((collected * t.salaryRate) / 100);
+      const paid = s.expenses
+        .filter((e) => e.teacherId === t.id && e.at.startsWith(ym))
+        .reduce((a, e) => a + e.amount, 0);
+      return { teacherId: t.id, name: `${t.firstName} ${t.lastName}`, mode: t.salaryMode, rate: t.salaryRate, sessions, collected, due, paid };
+    });
+  },
+
+
   // Analytics
   revenueThisMonth(): number {
     const s = load();
