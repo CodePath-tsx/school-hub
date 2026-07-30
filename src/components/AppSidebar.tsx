@@ -12,7 +12,6 @@ import {
   KeyRound,
   Power,
   Wallet,
-  BookMarked,
 } from "lucide-react";
 import { db } from "@/lib/store";
 import { useDb } from "@/lib/useDb";
