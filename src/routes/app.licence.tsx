@@ -1,16 +1,30 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { KeyRound, ShieldCheck, Cpu, RefreshCcw, XCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useMBStore, formatMoney } from "@/lib/mb-store";
-import { PageBody, PageHeader } from "@/components/app-shell";
+import { useEffect, useState } from "react";
+import { db } from "@/lib/store";
+import { PageHeader, Card as PageBody } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/_app/license")({ component: LicensePage });
 
 function LicensePage() {
   const navigate = useNavigate();
-  const license = useMBStore((s) => s.license);
-  const setLicense = useMBStore((s) => s.setLicense);
-  if (!license) return <PageBody><p>لا يوجد ترخيص</p></PageBody>;
+  const [rec, setRec] = useState(() => db.license());
+
+  useEffect(() => {
+    // listen for external changes if needed (store.save triggers no event), can be extended later
+  }, []);
+
+  if (!rec) return <PageBody><p>لا يوجد ترخيص</p></PageBody>;
+
+  const license = {
+    key: rec.key,
+    type: rec.payload?.type ?? "",
+    machineId: rec.machineId,
+    activatedAt: rec.activatedAt,
+    expiresAt: rec.payload?.expiresAt ?? null,
+    ownerName: rec.payload?.customer ?? "",
+  };
 
   const expiresIn = license.expiresAt
     ? Math.max(0, Math.round((new Date(license.expiresAt).getTime() - Date.now()) / 86400000))
@@ -18,7 +32,7 @@ function LicensePage() {
 
   return (
     <PageBody>
-      <PageHeader title="License" description="Manage your application license" />
+      <PageHeader title="License" subtitle="Manage your application license" />
 
       <div className="rounded-3xl border bg-gradient-to-br from-primary to-primary-hover p-8 text-primary-foreground shadow-primary">
         <div className="flex items-start justify-between">
@@ -53,7 +67,17 @@ function LicensePage() {
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-info/10 text-info"><Cpu className="h-5 w-5" /></div>
           <div className="text-right"><p className="font-bold">Machine Locked</p><p className="text-xs text-muted-foreground">مرتبط بجهاز واحد</p></div>
         </div>
-        <button onClick={() => { if (confirm("إلغاء تفعيل الترخيص؟")) { setLicense(null); toast.success("تم"); navigate({ to: "/activate" }); } }} className="flex items-center gap-3 rounded-2xl border bg-card p-5 shadow-card hover:shadow-elevated">
+        <button
+          onClick={() => {
+            if (confirm("إلغاء تفعيل الترخيص؟")) {
+              db.clearLicense();
+              setRec(null);
+              toast.success("تم");
+              navigate({ to: "/activate" });
+            }
+          }}
+          className="flex items-center gap-3 rounded-2xl border bg-card p-5 shadow-card hover:shadow-elevated"
+        >
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-destructive/10 text-destructive"><XCircle className="h-5 w-5" /></div>
           <div className="text-right"><p className="font-bold">إلغاء التفعيل</p><p className="text-xs text-muted-foreground">حذف الترخيص</p></div>
         </button>
@@ -61,6 +85,7 @@ function LicensePage() {
     </PageBody>
   );
 }
+
 function Info({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div className="rounded-2xl bg-white/10 p-3 backdrop-blur">
