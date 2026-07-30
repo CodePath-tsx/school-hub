@@ -60,7 +60,16 @@ export interface Payment {
   receiptNo: string;
   note?: string;
 }
-export interface Expense { id: ID; label: string; amount: number; category: string; at: string }
+export type ExpenseCategory =
+  | "Teacher Salary" | "Staff Salary" | "Supplies" | "Rent"
+  | "Utilities" | "Maintenance" | "Marketing" | "Other";
+export interface Expense {
+  id: ID; label: string; amount: number; category: ExpenseCategory | string; at: string;
+  payee?: string;
+  teacherId?: ID;
+  method?: "cash" | "card" | "transfer";
+  note?: string;
+}
 export interface LicenseRecord {
   key: string; payload: import("./license").LicensePayload;
   machineId: string; activatedAt: string;
