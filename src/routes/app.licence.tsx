@@ -68,7 +68,7 @@ function LicencePage() {
                   <Info label="Machine" value={active.payload.machineId || "(any)"} />
                 </div>
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
-                  <Badge variant={active.payload.type === "lifetime" ? "success" : "warning"} className="text-sm px-4 py-1">
+                  <Badge tone={active.payload.type === "lifetime" ? "success" : "warning"}>
                     {active.payload.type === "lifetime" ? "Lifetime" : "Subscription"}
                   </Badge>
                 </div>

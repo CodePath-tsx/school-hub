@@ -253,10 +253,10 @@ function UsersPage() {
                     </div>
                   </td>
                   <td className="py-3">
-                    <Badge variant={u.role === "admin" ? "info" : "default"} className="capitalize">{u.role}</Badge>
+                    <Badge tone={u.role === "admin" ? "info" : "default"}>{u.role}</Badge>
                   </td>
                   <td className="py-3">
-                    <Badge variant={u.status === "active" ? "success" : "default"} className="capitalize">{u.status}</Badge>
+                    <Badge tone={u.status === "active" ? "success" : "default"}>{u.status}</Badge>
                   </td>
                   <td className="py-3 text-muted-foreground hidden md:table-cell">{fmtDate(u.createdAt)}</td>
                   <td className="py-3 px-6">
